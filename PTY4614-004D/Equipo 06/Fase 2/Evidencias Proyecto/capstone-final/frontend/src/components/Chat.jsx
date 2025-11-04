@@ -13,13 +13,22 @@ export default function Chat({ groupId }) {
 
   useEffect(() => {
     // Cargar mensajes previos
-    api.get(`/groups/${groupId}/messages`).then(res => setMessages(res.data))
-
+    api.get(`/messages/${groupId}`)
+      .then(res => {
+        console.log("Mensajes cargados:", res.data);
+        setMessages(res.data)
+      })
+      .catch(err => {
+        console.error("Error al cargar los mensajes:", err);
+      })
+    
     // Conectar socket
     socket = io('http://localhost:5000')
     socket.emit('joinGroup', groupId)
 
     socket.on('message', (msg) => {
+      console.log("Mensaje recibido por socket:", msg);
+      // Añadir el mensaje recibido en tiempo real
       setMessages(prev => [...prev, msg])
     })
 

@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 
 export default function CreateGroup() {
   const [form, setForm] = useState({ name: '', description: '', game: '', isPrivate: false })
+  const [games, setGames] = useState([])
   const navigate = useNavigate()
+
+  useEffect(() => {
+    api.get('/games').then(res => setGames(res.data))
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -35,13 +40,18 @@ export default function CreateGroup() {
           value={form.description}
           onChange={e => setForm({ ...form, description: e.target.value })}
         />
-        <input
-          type="text"
-          placeholder="Juego (ej: Valorant)"
-          className="w-full px-4 py-3 bg-white/10 border border-purple-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+        <select
+          className="w-full px-4 py-3 bg-white/10 border border-purple-500 rounded-lg"
           value={form.game}
           onChange={e => setForm({ ...form, game: e.target.value })}
-        />
+          required
+        >
+          <option value="">Selecciona un juego</option>
+          {games.map(g => (
+          <option key={g._id} value={g.name}>{g.name}</option>
+          ))}
+        </select>
+
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
