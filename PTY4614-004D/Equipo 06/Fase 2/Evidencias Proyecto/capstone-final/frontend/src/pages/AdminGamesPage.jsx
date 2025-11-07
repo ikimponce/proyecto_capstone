@@ -22,16 +22,16 @@ export default function AdminGamesPage() {
 
   // Cargar juegos
   const loadGames = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/games');
-      setGames(res.data);
-    } catch (err) {
-      alert('Error al cargar juegos');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const res = await api.get('/games');  // ← ahora trae todos
+    setGames(res.data);
+  } catch (err) {
+    alert('Error al cargar juegos');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -43,22 +43,21 @@ export default function AdminGamesPage() {
 
   // Enviar formulario
   const submitForm = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingGame) {
-        await api.put(`/games/${editingGame._id}`, form);
-      } else {
-        await api.post('/games', form);
-      }
-      setShowForm(false);
-      setEditingGame(null);
-      setForm({ name: '', genre: '', platform: '', description: '', image: '' });
-      loadGames();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error');
+  e.preventDefault();
+  try {
+    if (editingGame) {
+      await api.put(`/games/${editingGame._id}`, form);  // ← PUT
+    } else {
+      await api.post('/games', form);
     }
-  };
-
+    setShowForm(false);
+    setEditingGame(null);
+    setForm({ name: '', genre: '', platform: '', description: '', image: '' });
+    loadGames();  // ← recarga TODOS
+  } catch (err) {
+    alert(err.response?.data?.message || 'Error');
+  }
+};
   const toggleActive = async (id, active) => {
     try {
       const method = active ? 'delete' : 'patch';

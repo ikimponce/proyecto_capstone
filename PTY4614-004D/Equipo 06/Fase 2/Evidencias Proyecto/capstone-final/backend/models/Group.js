@@ -7,6 +7,7 @@ const groupSchema = new mongoose.Schema({
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   isPrivate: { type: Boolean, default: false },
+  messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
   inviteCode: String,
 }, { timestamps: true })
 
