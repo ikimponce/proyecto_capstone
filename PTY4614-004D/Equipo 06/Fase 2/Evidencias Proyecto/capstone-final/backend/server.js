@@ -18,6 +18,7 @@ app.use(cors())
 app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/groups', groupRoutes)
+app.use('/api/games', require('./routes/games'));
 
 mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB OK'))
 

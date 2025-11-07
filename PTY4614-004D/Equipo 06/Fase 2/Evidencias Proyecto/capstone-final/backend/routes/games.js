@@ -1,11 +1,21 @@
-// routes/games.js
-const express = require('express')
-const Game = require('../models/Game')
-const router = express.Router()
 
-router.get('/', async (req, res) => {
-  const games = await Game.find()
-  res.json(games)
-})
+const express = require('express');
+const router = express.Router();
+const auth = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
+const {
+  createGame,
+  deleteGame,
+  reactivateGame,
+  getActiveGames
+} = require('../controllers/gameController');
 
-module.exports = router
+router.get('/', getActiveGames);
+
+router.post('/', auth, isAdmin, createGame);
+
+router.delete('/:id', auth, isAdmin, deleteGame);
+
+router.patch('/:id/reactivate', auth, isAdmin, reactivateGame);
+
+module.exports = router;

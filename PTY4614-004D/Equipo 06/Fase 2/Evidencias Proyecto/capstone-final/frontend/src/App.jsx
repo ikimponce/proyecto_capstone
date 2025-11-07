@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 
-// Componentes
 import Navbar from './components/Navbar'
 import LoadingSpinner from './components/LoadingSpinner'
 
-// Páginas
 import Login from './pages/Login'
+import Protected from './components/Protected';
+import AdminGamesPage from './pages/AdminGamesPage';
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import CreateGroup from './pages/CreateGroup'
@@ -37,6 +37,7 @@ function App() {
             <Route path="/group/:id" element={user ? <GroupChat /> : <Navigate to="/login" />} />
             <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
             <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/admin/games"element={<Protected requireAdmin={true}><AdminGamesPage /></Protected>}/>
           </Routes>
         </main>
       </div>
