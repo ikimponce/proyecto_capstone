@@ -11,6 +11,21 @@ const getGames = async (req, res) => {
   }
 };
 
+//Juegos publicos activos
+const getActiveGames = async (req, res) => {
+  try {
+    const games = await Game.find({ active: true })
+      .select('name')
+      .sort({ name: 1 })
+      .lean();
+
+    res.json(games);
+  } catch (error) {
+    console.error('Error al obtener juegos activos:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+};
+
 // Crear juego
 const createGame = async (req, res) => {
   try {
@@ -105,6 +120,7 @@ const reactivateGame = async (req, res) => {
 
 module.exports = {
   getGames,      // ← NUEVO: todos los juegos
+  getActiveGames, // ← Juegos publicos activos
   createGame,
   updateGame,    // ← NUEVO: PUT
   deleteGame,

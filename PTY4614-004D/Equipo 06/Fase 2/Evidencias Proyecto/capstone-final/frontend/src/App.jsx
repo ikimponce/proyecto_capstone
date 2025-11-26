@@ -12,6 +12,8 @@ import Dashboard from './pages/Dashboard'
 import CreateGroup from './pages/CreateGroup'
 import GroupChat from './pages/GroupChat'
 import HomePage from './pages/HomePage'
+import Profile from './pages/Profile'
+import EditProfile from './pages/EditProfile'
 
 function App() {
   const { user, loading } = useAuth()
@@ -40,7 +42,9 @@ function App() {
             <Route path="/" element={<Navigate to={user ? "/dashboard" : "/homepage"} />} />
             <Route path="*" element={<Navigate to="/homepage" />} />
             <Route path="/admin/games"element={<Protected requireAdmin={true}><AdminGamesPage /></Protected>}/>
-          </Routes>
+            <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+            <Route path="/profile/edit" element={user ? <EditProfile /> : <Navigate to="/login" />} />
+            </Routes>
         </main>
       </div>
     </Router>

@@ -5,11 +5,15 @@ const auth = require('../middleware/auth');
 const isAdmin = require('../middleware/isAdmin');
 const {
   getGames,      // ← Todos los juegos
+  getActiveGames,
   createGame,
   updateGame,    // ← PUT
   deleteGame,
   reactivateGame
 } = require('../controllers/gameController');
+
+//ruta de juegos publicos
+router.get('/active', getActiveGames);  // ← SIN auth, SIN isAdmin
 
 // GET /api/games → todos los juegos (admin)
 router.get('/', auth, isAdmin, getGames);

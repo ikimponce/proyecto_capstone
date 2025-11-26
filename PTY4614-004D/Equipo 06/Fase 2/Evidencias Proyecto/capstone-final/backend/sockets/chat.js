@@ -1,51 +1,31 @@
-// sockets/chat.js
+// sockets/chat.js 
 const Message = require('../models/Message');
-const Group = require('../models/Group');
 
 module.exports = (io) => {
   io.on('connection', (socket) => {
     console.log('Usuario conectado:', socket.id);
 
-    socket.on('joinGroup', (groupId) => {
-      socket.join(groupId);
-      console.log(`Usuario ${socket.id} entró al grupo ${groupId}`);
+    // === UNIRSE A LA SALA (nombre compatible con frontend) ===
+    socket.on('join-group', (groupId) => {
+      const room = `group_${groupId}`;
+      socket.join(room);
+      console.log(`Usuario ${socket.id} entró a la sala: ${room}`);
     });
 
-    socket.on('chatMessage', async ({ groupId, message, userId }) => {
-      try {
-        const newMessage = new Message({
-          group: groupId,
-          user: userId,
-          content: message
-        });
-        await newMessage.save();
-
-        const group = await Group.findById(groupId);
-        group.messages.push(newMessage._id);
-        await group.save();
-
-        const populated = await Message.findById(newMessage._id)
-          .populate('user', 'username');
-
-        const msgToSend = {
-          _id: populated._id,
-          user: {
-            _id: populated.user._id,
-            username: populated.user.username
-          },
-          content: populated.content,
-          timestamp: populated.timestamp
-        };
-
-        io.to(groupId).emit('message', msgToSend);
-        console.log('Mensaje enviado:', msgToSend);
-      } catch (err) {
-        console.error('Error en chat:', err);
-      }
+    // === SALIR DE LA SALA ===
+    socket.on('leave-group', (groupId) => {
+      const room = `group_${groupId}`;
+      socket.leave(room);
+      console.log(`Usuario ${socket.id} salió de: ${room}`);
     });
 
+    // === DESCONEXIÓN ===
     socket.on('disconnect', () => {
       console.log('Usuario desconectado:', socket.id);
     });
   });
+
+  // === ESTO ES LO QUE USA TU RUTA POST /messages === 
+  // Hacemos el emit desde aquí también para que sea consistente
+  // (aunque ya lo haces en la ruta, esto es por si quieres centralizar)
 };
