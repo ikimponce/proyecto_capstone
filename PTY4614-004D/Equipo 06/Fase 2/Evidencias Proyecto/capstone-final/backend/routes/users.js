@@ -23,22 +23,31 @@ router.get('/me', auth, async (req, res) => {
 
 // Ruta para actualizar avatar e intención
 router.put('/me', auth, async (req, res) => {
-  const { avatar, intention } = req.body;
-  try {
-    const updateData = {};
-    if (avatar) updateData.avatar = avatar;
-    if (intention) updateData.intention = intention;
+  const updates = req.body;
 
+  // Campos permitidos para actualizar
+  const allowedUpdates = ['username', 'avatar', 'intention'];
+  const finalUpdates = {};
+
+  allowedUpdates.forEach(field => {
+    if (updates[field] !== undefined && updates[field] !== '') {
+      finalUpdates[field] = updates[field];
+    }
+  });
+
+  try {
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      updateData,
+      { $set: finalUpdates },
       { new: true }
     ).select('-password');
 
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
     res.json(user);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error al actualizar perfil' });
+    console.error('Error actualizando perfil:', err);
+    res.status(500).json({ message: 'Error del servidor' });
   }
 });
 
