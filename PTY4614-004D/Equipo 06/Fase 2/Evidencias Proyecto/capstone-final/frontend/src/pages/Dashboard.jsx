@@ -164,9 +164,16 @@ export default function Dashboard() {
                   {/* Avatar */}
                   <div className="relative">
                     <img
-                      src={profile.avatar?.startsWith('http') ? profile.avatar : `/avatars/${profile.avatar || 'default.png'}`}
+                      src={
+                        profile.avatar?.startsWith('http') 
+                          ? profile.avatar 
+                          : `http://localhost:5000/avatars/${profile.avatar || 'default.png'}`
+                      }
                       alt={profile.username}
                       className="w-40 h-40 lg:w-56 lg:h-56 rounded-full border-4 border-purple-500/60 shadow-2xl object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'http://localhost:5000/avatars/default.png';
+                      }}
                     />
                     <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 opacity-30 blur-xl"></div>
                   </div>

@@ -171,7 +171,11 @@ const sendMessage = async (e) => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <img
-                          src={member.avatar?.startsWith('http') ? member.avatar : `/avatars/${member.avatar || 'default.png'}`}
+                          src={
+                            member.avatar?.startsWith('http') 
+                              ? member.avatar 
+                              : `http://localhost:5000/avatars/${member.avatar || 'default.png'}`
+                          }                          
                           alt={member.username}
                           className="w-12 h-12 rounded-full object-cover border-2 border-purple-500"
                         />
@@ -186,14 +190,15 @@ const sendMessage = async (e) => {
 
                     {/* Estrellas para valorar (solo si no eres tú) */}
                     {member._id !== authUser._id && (
-                      <div className="flex gap-1 justify-center mt-3">
-                        {[1,2,3,4,5].map(star => (
+                      <div className="grid grid-cols-5 gap-1 mt-3 max-w-[140px] mx-auto">
+                        {[1, 2, 3, 4, 5].map((star) => (
                           <button
                             key={star}
                             onClick={() => rateUser(member._id, star)}
-                            className="text-2xl hover:scale-125 transition transform"
+                            className="text-xl hover:scale-125 hover:text-yellow-400 
+                                      transition-all duration-200 active:scale-95"
                           >
-                            {star === 5 ? 'GOAT' : '★'}
+                            {star === 5 ? '🐐' : '★'}
                           </button>
                         ))}
                       </div>
