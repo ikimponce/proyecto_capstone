@@ -1,0 +1,39 @@
+User Schema
+username: String Unique
+email: String Unique
+password: String
+avatar: String
+role: String
+games: String
+intention: String
+rating: Number
+
+Message Schema
+group: ref:Group
+user: ref:User
+content String
+timestamp: Date
+
+Game Schema 
+name: String Unique
+genre: String
+platform: String
+description: String
+image: String
+active: Boolean
+
+Group Schema
+name: String
+description: String,
+game: String
+owner: ref: User
+members: ref: User
+isPrivate: Boolean
+messages: ref: Message
+inviteCode: String,
+ratings: [
+      from: ref: User
+      to: ref: User
+      value: Number, min: 1, max: 5
+      createdAt: Date
+]

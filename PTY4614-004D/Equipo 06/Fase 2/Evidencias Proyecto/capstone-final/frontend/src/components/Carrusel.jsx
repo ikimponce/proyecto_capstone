@@ -25,7 +25,7 @@ export default function Carrusel() {
       </div>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <h1 className="absolute bottom-10 left-10 text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
-        Bienvenido a la GAMETREE
+        Bienvenido a SAFEZONE
       </h1>
     </div>
   )

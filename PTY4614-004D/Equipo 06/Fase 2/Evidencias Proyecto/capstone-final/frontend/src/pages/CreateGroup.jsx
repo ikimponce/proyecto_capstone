@@ -8,7 +8,7 @@ export default function CreateGroup() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    api.get('/games').then(res => setGames(res.data))
+    api.get('/games/active').then(res => setGames(res.data))
   }, [])
 
   const handleSubmit = async (e) => {
@@ -51,15 +51,6 @@ export default function CreateGroup() {
           <option key={g._id} value={g.name}>{g.name}</option>
           ))}
         </select>
-
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={form.isPrivate}
-            onChange={e => setForm({ ...form, isPrivate: e.target.checked })}
-          />
-          <span>Grupo privado (requiere código)</span>
-        </label>
         <button
           type="submit"
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"

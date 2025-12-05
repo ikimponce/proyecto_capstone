@@ -1,6 +1,6 @@
 // src/pages/GroupChat.jsx
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import socket from '../socket';
@@ -8,10 +8,13 @@ import socket from '../socket';
 export default function GroupChat() {
   const { id } = useParams();
   const { user: authUser } = useAuth();
+  const navigate = useNavigate();
   const [group, setGroup] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true); // ← AQUÍ ESTABA EL ERROR
+  const [loading, setLoading] = useState(true);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -23,7 +26,7 @@ export default function GroupChat() {
   }, [messages]);
 
   // Cargar grupo y mensajes
-   useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
       try {
         const [groupRes, messagesRes] = await Promise.all([
@@ -45,12 +48,12 @@ export default function GroupChat() {
 
     // === ESCUCHAR MENSAJES NUEVOS ===
     const handleNewMessage = (msg) => {
-        const groupId = msg.group?._id || msg.group || msg.groupId;
-        if (groupId && groupId.toString() === id) {
-          setMessages(prev => {
-            const exists = prev.some(m => m._id === msg._id);
-            if (exists) return prev;
-            return [...prev, msg];
+      const groupId = msg.group?._id || msg.group || msg.groupId;
+      if (groupId && groupId.toString() === id) {
+        setMessages(prev => {
+          const exists = prev.some(m => m._id === msg._id);
+          if (exists) return prev;
+          return [...prev, msg];
         });
       }
     };
@@ -59,43 +62,58 @@ export default function GroupChat() {
 
     // === LIMPIEZA ===
     return () => {
-      socket.emit('leave-group', id);  // ← SALIR DE LA SALA
+      socket.emit('leave-group', id);
       socket.off('new-message', handleNewMessage);
     };
   }, [id]);
 
-const sendMessage = async (e) => {
-  e.preventDefault();
-  if (!newMessage.trim()) return;
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
 
-  const messageContent = newMessage.trim();
-  setNewMessage(''); // ← Limpia el input al instante
+    const messageContent = newMessage.trim();
+    setNewMessage('');
 
-  try {
-    const res = await api.post(`/messages/${id}`, {
-      content: messageContent
-    });
-
-    // ← AÑADE ESTO: el mensaje aparece al instante para ti también
-    //comentado por dublicacion al escribir en chat
-    //setMessages(prev => [...prev, res.data]);
-
-  } catch (err) {
-    console.error('Error enviando mensaje:', err);
-    alert(err.response?.data?.message || 'Error enviando mensaje');
-    // Si falla, vuelve a poner el texto
-    setNewMessage(messageContent);
-  }
-};
+    try {
+      await api.post(`/messages/${id}`, {
+        content: messageContent
+      });
+    } catch (err) {
+      console.error('Error enviando mensaje:', err);
+      alert(err.response?.data?.message || 'Error enviando mensaje');
+      setNewMessage(messageContent);
+    }
+  };
 
   const rateUser = async (targetUserId, stars) => {
     try {
       await api.post(`/groups/${id}/rate`, { targetUserId, stars });
-      // Opcional: recargar grupo para ver rating actualizado
       const res = await api.get(`/groups/${id}`);
       setGroup(res.data);
     } catch (err) {
       alert(err.response?.data?.message || 'Error al valorar');
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    try {
+      await api.post(`/groups/${id}/leave`);
+      // Redirigir al dashboard después de salir
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Error al salir del grupo:', err);
+      alert(err.response?.data?.message || 'Error al salir del grupo');
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      await api.delete(`/groups/${id}`);
+      // Redirigir al dashboard después de eliminar
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Error al eliminar el grupo:', err);
+      alert(err.response?.data?.message || 'Error al eliminar el grupo');
     }
   };
 
@@ -111,14 +129,40 @@ const sendMessage = async (e) => {
     return <div className="text-white text-center pt-20">Grupo no encontrado</div>;
   }
 
+  const isOwner = group.owner._id === authUser._id;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950">
       <div className="max-w-6xl mx-auto p-6 pt-24">
         <div className="bg-white/5 backdrop-blur-xl rounded-3xl border border-purple-500/30 shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600/50 to-pink-600/50 p-6 border-b border-purple-500/30">
-            <h1 className="text-4xl font-bold text-white">{group.name}</h1>
-            <p className="text-purple-200">{group.game} • {group.members.length} miembros</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-white">{group.name}</h1>
+                <p className="text-purple-200">{group.game} • {group.members.length} miembros</p>
+              </div>
+              
+              {/* Botón Salir del Grupo (solo si no eres el dueño) */}
+              {!isOwner && (
+                <button
+                  onClick={() => setShowLeaveConfirm(true)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  Salir del Grupo
+                </button>
+              )}
+
+              {/* Botón Eliminar Grupo (solo si eres el dueño) */}
+              {isOwner && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  Eliminar Grupo
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col lg:flex-row h-[75vh]">
@@ -218,6 +262,62 @@ const sendMessage = async (e) => {
           </div>
         </div>
       </div>
+
+      {/* Modal de confirmación para salir del grupo */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-purple-500/50 rounded-2xl p-8 max-w-md mx-4">
+            <h3 className="text-2xl font-bold text-white mb-4">¿Salir del grupo?</h3>
+            <p className="text-gray-300 mb-6">
+              ¿Estás seguro de que quieres salir de <span className="font-bold text-purple-400">{group.name}</span>? 
+              Podrás volver a unirte más tarde.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLeaveConfirm(false)}
+                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleLeaveGroup}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition"
+              >
+                Salir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación para eliminar el grupo */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-red-500/50 rounded-2xl p-8 max-w-md mx-4">
+            <h3 className="text-2xl font-bold text-red-500 mb-4">⚠️ ¿Eliminar grupo?</h3>
+            <p className="text-gray-300 mb-4">
+              ¿Estás seguro de que quieres eliminar permanentemente el grupo <span className="font-bold text-red-400">{group.name}</span>?
+            </p>
+            <p className="text-red-400 text-sm mb-6">
+              Esta acción NO se puede deshacer. Todos los mensajes y datos del grupo se perderán.
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteGroup}
+                className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

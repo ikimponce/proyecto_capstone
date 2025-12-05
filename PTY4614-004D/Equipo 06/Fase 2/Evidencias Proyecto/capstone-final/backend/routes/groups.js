@@ -165,6 +165,30 @@ router.post('/:id/leave', auth, async (req, res) => {
   }
 });
 
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const group = await Group.findById(req.params.id);
+    
+    if (!group) {
+      return res.status(404).json({ message: 'Grupo no encontrado' });
+    }
+
+    if (group.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Solo el dueño puede eliminar el grupo' });
+    }
+
+    await Group.findByIdAndDelete(req.params.id);
+    
+    // Opcional: También eliminar todos los mensajes del grupo
+    // await Message.deleteMany({ group: req.params.id });
+
+    res.json({ message: 'Grupo eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar grupo:', error);
+    res.status(500).json({ message: 'Error del servidor' });
+  }
+});
+
 // 8. VALORAR JUGADOR + NOTIFICACIONES EN TIEMPO REAL
 router.post('/:id/rate', auth, async (req, res) => {
   const { targetUserId, stars } = req.body;

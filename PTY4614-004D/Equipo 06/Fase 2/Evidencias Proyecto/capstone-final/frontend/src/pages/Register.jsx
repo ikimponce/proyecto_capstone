@@ -39,9 +39,11 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center mb-6 text-purple-300">Crear Cuenta</h2>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gray-950 via-purple-950/50 to-gray-950">
+      <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-purple-500/30 shadow-2xl w-full max-w-md">
+        <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Crear Cuenta
+        </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Username */}
@@ -50,11 +52,15 @@ export default function Register() {
               {...register("username")}
               type="text"
               placeholder="Nombre de usuario"
-              className={`w-full px-4 py-3 rounded-lg bg-white/20 border ${
-                errors.username ? "border-red-500" : "border-purple-500"
-              } focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-gray-300 transition`}
+              className={`w-full px-4 py-3 rounded-xl bg-white/10 border ${
+                errors.username ? "border-red-500" : "border-purple-500/50"
+              } focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200`}
             />
-            {errors.username && <p className="text-red-400 text-sm mt-1">{errors.username.message}</p>}
+            {errors.username && (
+              <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                <span>⚠️</span> {errors.username.message}
+              </p>
+            )}
           </div>
 
           {/* Email */}
@@ -63,11 +69,15 @@ export default function Register() {
               {...register("email")}
               type="email"
               placeholder="Email"
-              className={`w-full px-4 py-3 rounded-lg bg-white/20 border ${
-                errors.email ? "border-red-500" : "border-purple-500"
-              } focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-gray-300 transition`}
+              className={`w-full px-4 py-3 rounded-xl bg-white/10 border ${
+                errors.email ? "border-red-500" : "border-purple-500/50"
+              } focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200`}
             />
-            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                <span>⚠️</span> {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password */}
@@ -76,11 +86,15 @@ export default function Register() {
               {...register("password")}
               type="password"
               placeholder="Contraseña (mín. 8 caracteres)"
-              className={`w-full px-4 py-3 rounded-lg bg-white/20 border ${
-                errors.password ? "border-red-500" : "border-purple-500"
-              } focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-gray-300 transition`}
+              className={`w-full px-4 py-3 rounded-xl bg-white/10 border ${
+                errors.password ? "border-red-500" : "border-purple-500/50"
+              } focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200`}
             />
-            {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                <span>⚠️</span> {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Confirm Password */}
@@ -89,24 +103,34 @@ export default function Register() {
               {...register("confirmPassword")}
               type="password"
               placeholder="Confirmar contraseña"
-              className={`w-full px-4 py-3 rounded-lg bg-white/20 border ${
-                errors.confirmPassword ? "border-red-500" : "border-purple-500"
-              } focus:outline-none focus:ring-2 focus:ring-purple-400 text-white placeholder-gray-300 transition`}
+              className={`w-full px-4 py-3 rounded-xl bg-white/10 border ${
+                errors.confirmPassword ? "border-red-500" : "border-purple-500/50"
+              } focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-200`}
             />
-            {errors.confirmPassword && <p className="text-red-400 text-sm mt-1">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && (
+              <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                <span>⚠️</span> {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-70"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-purple-500/50"
           >
             {isSubmitting ? "Creando cuenta..." : "Registrarse"}
           </button>
         </form>
 
         <p className="text-center mt-6 text-sm text-gray-300">
-          ¿Ya tienes cuenta? <Link to="/login" className="text-purple-400 hover:underline font-medium">Inicia sesión</Link>
+          ¿Ya tienes cuenta?{" "}
+          <Link 
+            to="/login" 
+            className="text-purple-400 hover:text-purple-300 font-semibold transition-colors duration-200"
+          >
+            Inicia sesión
+          </Link>
         </p>
       </div>
     </div>

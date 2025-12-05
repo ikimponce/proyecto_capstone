@@ -5,7 +5,7 @@ const gameSchema = new mongoose.Schema({
   genre: { type: String },
   platform: { type: String },
   description: { type: String },
-  image: { type: String }, // URL o nombre de archivo
+  image: { type: String },
   active: { type: Boolean, default: true }
 }, { timestamps: true })
 
