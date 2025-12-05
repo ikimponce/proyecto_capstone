@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import socket from '../socket'; // ← Notificaciones en tiempo real
+import socket from '../socket';
 
 const intentionConfig = {
   'just-play': { label: 'Solo jugar', gradient: 'from-orange-500 to-red-600', glow: 'shadow-orange-500/50' },
@@ -37,7 +37,6 @@ export default function Dashboard() {
     };
 
     const handleFiveStars = (data) => {
-      // SONIDO ÉPICO
       const audio = new Audio('/sounds/five-stars.mp3');
       audio.volume = 0.6;
       audio.play().catch(() => {});
@@ -57,7 +56,7 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Toast personalizado sin librerías
+  // Toast personalizado
   const showToast = (message, type = 'normal') => {
     const toast = document.createElement('div');
     toast.className = `fixed bottom-8 right-8 z-50 px-8 py-6 rounded-2xl shadow-2xl text-white font-bold text-xl transform translate-y-32 opacity-0 transition-all duration-500`;
@@ -66,7 +65,7 @@ export default function Dashboard() {
       toast.className += ' bg-gradient-to-r from-purple-600 via-pink-600 to-yellow-600 animate-pulse';
       toast.innerHTML = `
         <div class="flex items-center gap-4">
-          <span class="text-5xl">GOAT</span>
+          <span class="text-5xl">🐐</span>
           <div class="max-w-xs">${message}</div>
         </div>
       `;
@@ -77,12 +76,10 @@ export default function Dashboard() {
 
     document.body.appendChild(toast);
 
-    // Animación de entrada
     requestAnimationFrame(() => {
       toast.classList.remove('translate-y-32', 'opacity-0');
     });
 
-    // Auto eliminar
     setTimeout(() => {
       toast.classList.add('translate-y-32', 'opacity-0');
       setTimeout(() => toast.remove(), 600);
@@ -183,7 +180,7 @@ export default function Dashboard() {
                     <h1 className="text-5xl lg:text-7xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent mb-4">
                       ¡Hola, {profile.username}!
                     </h1>
-                    <div className="flex flex capitano sm:flex-row gap-6 justify-center lg:justify-start items-center">
+                    <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center">
                       {/* Intención */}
                       <div className={`px-8 py-4 rounded-2xl bg-gradient-to-r ${intentionConfig[profile.intention || 'just-play'].gradient} text-white font-bold text-xl shadow-2xl ${intentionConfig[profile.intention || 'just-play'].glow}`}>
                         {intentionConfig[profile.intention || 'just-play'].label}
@@ -216,11 +213,11 @@ export default function Dashboard() {
                   </div>
 
                   {/* Botones */}
-                  <div className="flex gap-4">
-                    <Link to="/profile" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl font-bold text-xl hover:scale-105 transition shadow-xl">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Link to="/profile" className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold text-xl hover:scale-105 active:scale-95 transition-all duration-200 shadow-xl hover:shadow-purple-500/50">
                       Ver Perfil
                     </Link>
-                    <Link to="/profile/edit" className="px-8 py-4 bg-white/10 backdrop-blur border border-purple-500/50 rounded-2xl font-bold text-xl hover:scale-105 transition">
+                    <Link to="/profile/edit" className="px-8 py-4 bg-white/10 backdrop-blur border border-purple-500/50 hover:bg-white/20 rounded-xl font-bold text-xl hover:scale-105 active:scale-95 transition-all duration-200">
                       Editar
                     </Link>
                   </div>
@@ -230,23 +227,26 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-20">
               <div className="inline-block w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-gray-400 mt-4">Cargando perfil...</p>
             </div>
           )}
 
           {/* MIS GRUPOS */}
           <section className="mb-16">
-            <h2 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-8">
+            <h2 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-8">
               Mis Grupos
             </h2>
 
             {loadingMy ? (
               <div className="text-center py-20">
                 <div className="inline-block w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-400 mt-4">Cargando grupos...</p>
               </div>
             ) : myGroups.length === 0 ? (
               <div className="text-center py-20 bg-white/5 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-12">
+                <div className="text-6xl mb-6">🎮</div>
                 <p className="text-2xl text-gray-400 mb-6">Aún no estás en ningún grupo</p>
-                <Link to="/group/create" className="text-xl text-purple-400 hover:text-purple-300 underline">
+                <Link to="/group/create" className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold text-xl hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-purple-500/50">
                   ¡Crea uno ahora!
                 </Link>
               </div>
@@ -256,21 +256,21 @@ export default function Dashboard() {
                   <Link
                     key={group._id}
                     to={`/group/${group._id}`}
-                    className="group relative bg-white/5 backdrop-blur-xl border border-purple-500/30 p-6 rounded-3xl hover:bg-white/10 hover:border-purple-400 transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/30 overflow-hidden"
+                    className="group relative bg-white/5 backdrop-blur-xl border border-purple-500/30 p-6 rounded-3xl hover:bg-white/10 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-purple-500/30 overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div className="relative z-10">
                       <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition">
+                        <h3 className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
                           {group.name}
                         </h3>
                         {group.owner._id === profile?._id && (
-                          <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full">
-                            Dueño
+                          <span className="text-xs bg-yellow-500/20 text-yellow-300 border border-yellow-500/50 px-2 py-1 rounded-full font-bold">
+                          Dueño
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-300 mb-1">{group.game || 'Sin juego'}</p>
+                      <p className="text-gray-300 mb-1 font-medium">{group.game || 'Sin juego'}</p>
                       <p className="text-sm text-gray-400">
                         {group.members.length} {group.members.length === 1 ? 'miembro' : 'miembros'}
                       </p>
@@ -287,11 +287,11 @@ export default function Dashboard() {
               <h2 className="text-4xl sm:text-5xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
                 Descubre Grupos {selectedGame && `de ${selectedGame}`}
               </h2>
-              <div className="flex gap-4 items-center">
+              <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full lg:w-auto">
                 <select
                   value={selectedGame}
                   onChange={(e) => setSelectedGame(e.target.value)}
-                  className="px-4 py-3 bg-white/10 backdrop-blur-xl border border-purple-500/30 rounded-xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                  className="px-5 py-3 bg-white/10 backdrop-blur-xl border border-purple-500/50 rounded-xl text-white font-medium focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                 >
                   <option value="">Todos los juegos</option>
                   {games.map(game => (
@@ -300,7 +300,7 @@ export default function Dashboard() {
                 </select>
                 <Link
                   to="/group/create"
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-8 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:shadow-purple-500/50 transition-all transform hover:scale-110"
+                  className="text-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-8 py-3 rounded-xl font-bold shadow-lg hover:shadow-purple-500/50 transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   + Crear Grupo
                 </Link>
@@ -310,13 +310,15 @@ export default function Dashboard() {
             {loadingPublic ? (
               <div className="text-center py-20">
                 <div className="inline-block w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-gray-400 mt-4">Buscando grupos...</p>
               </div>
             ) : publicGroups.length === 0 ? (
               <div className="text-center py-20 bg-white/5 backdrop-blur-xl border border-purple-500/30 rounded-3xl p-12">
+                <div className="text-6xl mb-6">🔍</div>
                 <p className="text-2xl text-gray-400 mb-6">
                   {selectedGame ? `No hay grupos de ${selectedGame}` : 'No hay grupos públicos'}
                 </p>
-                <Link to="/group/create" className="text-xl text-purple-400 hover:text-purple-300 underline">
+                <Link to="/group/create" className="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold text-xl hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-purple-500/50">
                   ¡Crea uno público!
                 </Link>
               </div>
@@ -327,28 +329,28 @@ export default function Dashboard() {
                   return (
                     <div
                       key={group._id}
-                      className="group relative bg-white/5 backdrop-blur-xl border border-purple-500/30 p-6 rounded-3xl hover:bg-white/10 hover:border-purple-400 transition-all duration-500 transform hover:scale-105 shadow-2xl hover:shadow-purple-500/30 overflow-hidden"
+                      className="group relative bg-white/5 backdrop-blur-xl border border-purple-500/30 p-6 rounded-3xl hover:bg-white/10 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-purple-500/30 overflow-hidden"
                     >
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative z-10">
-                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition">
+                        <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
                           {group.name}
                         </h3>
-                        <p className="text-gray-300 mb-1">{group.game || 'Sin juego'}</p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-gray-300 mb-1 font-medium">{group.game || 'Sin juego'}</p>
+                        <p className="text-sm text-gray-400 mb-1">
                           {group.members.length} {group.members.length === 1 ? 'miembro' : 'miembros'}
                         </p>
-                        <p className="text-xs text-purple-300 mt-1">
-                          Creado por @{group.owner.username}
+                        <p className="text-xs text-purple-400 font-medium">
+                          Por @{group.owner.username}
                         </p>
 
                         <div className="mt-6 flex justify-end">
                           {isMember ? (
                             <Link
                               to={`/group/${group._id}`}
-                              className="px-5 py-2.5 bg-purple-600/60 hover:bg-purple-600 text-white text-sm font-bold rounded-xl transition"
+                              className="px-5 py-2.5 bg-purple-600/80 hover:bg-purple-600 text-white text-sm font-bold rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                             >
-                              Ver Chat
+                            Ver Chat
                             </Link>
                           ) : (
                             <button
@@ -362,7 +364,7 @@ export default function Dashboard() {
                                   showToast(err.response?.data?.message || 'Error', 'normal');
                                 }
                               }}
-                              className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-green-500/50 transition-all transform hover:scale-105"
+                              className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-green-500/50 transition-all duration-200 hover:scale-105 active:scale-95"
                             >
                               Unirse
                             </button>
